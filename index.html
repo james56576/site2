@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ZelAI</title>
+	<style>
+		body{
+                color: white;
+                text-align: center;
+                font-family: Arial;
+               background:rgb(20, 20, 20);
+            }
+		#input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#myInput {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+	    border: none;
+	font-size: 16px;
+}
+
+#myButton {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+	box-sizing: content-box;
+}
+
+#history0 {
+    border: 5px solid black;
+	overflow-y: scroll;
+	max-height: calc(100% - 35px);
+}
+
+	</style>
+</head>
+<body>
+    <script>
+	memory = []
+	let history;
+	
+        function mainLoop() {
+		
+			let dontUnderstandReplies = [
+    "Sorry, I don't understand. Is there anything else I can help with?",
+    "I'm sorry, I'm not quite sure what you mean. Can I assist you with something else?",
+    "My apologies, I don't understand what you're asking. Is there anything else I can do for you?",
+    "I apologize, I don't comprehend your request. Is there something else I can help with?",
+    "Apologies, I am not able to understand. Is there anything else I can assist with?",
+    "I'm sorry, I'm not following. Can you please clarify or ask something else?",
+    "I apologize, I am not able to understand your request. Can you please rephrase or ask something else?"
+]
+
+let whoAreYouTriggers = [
+    "who are you",
+    "whats your name",
+    "what do you do",
+    "whats your purpose",
+    "can you tell me about yourself",
+    "who created you",
+    "what is your function",
+    "who do you work for",
+    "what are you capable of",
+    "whats your story"
+]
+
+
+let whoAreYouReplies = [
+    "I'm Zel, a work-in-progress AI. Is there anything I can help you with?",
+    "I am Zel, a work-in-progress AI. Can I assist you with anything?",
+    "My name is Zel and I am an AI still under development. How can I be of your service?",
+    "I am Zel, an AI that is still being improved. Is there anything I can do for you?",
+    "It's Zel here. I am an AI that is still being fine-tuned. Can I help you with anything?"    
+]
+
+let helloTriggers = [
+    "hello",
+    "hi",
+    "hey",
+    "yo",
+    "sup",
+    "what's up",
+    "greetings",
+    "salutations",
+    "wassup",
+    "bonjour",
+    "ciao",
+    "hola",
+    "konnichiwa",
+    "namaste",
+    "salaam",
+    "zdravstvuyte",
+    "szia",
+    "merhaba",
+    "hallo",
+    "cześć",
+    "privet",
+    "hola",
+    "hei",
+    "hej",
+    "こんにちは",
+    "안녕하세요",
+    "你好",
+    "ola",
+    "dobrý den",
+    "sain baina uu",
+    "salam",
+    "sawubona",
+    "suteni",
+    "tere",
+    "terve",
+    "xin chào",
+    "હાય",
+    "नमस्ते",
+    "सुस्वागत",
+    "ಹಲೋ",
+    "こんにちは",
+    "안녕하세요",
+    "你好",
+    "こんにちは",
+    "добър ден",
+    "صباح الخير",
+    "شب بخير",
+    "عليكم السلام",
+    "howdy",
+    "what's good",
+    "how's it",
+    "how's everything",
+    "how's life",
+    "what's new",
+    "how are you",
+    "what's cracking",
+    "what's shaking",
+    "what's poppin",
+    "what's cookin",
+    "what's happening",
+    "what's good",
+    "what's the word",
+    "what's the haps",
+    "what's the deal",
+    "what's the skinny",
+    "what's the scoop",
+    "what's the buzz",
+    "what's the 411",
+    "what's the word",
+    "what's the crack",
+    "what's the craic",
+    "what's the story",
+    "what's the dealio",
+    "what's the lowdown",
+    "what's the sitch",
+    "what's the dilly",
+    "what's the sitrep",
+    "what's the word up",
+    "what's the situation",
+    "what's the state of things",
+    "what's the deal",
+    "what's the long and short of it",
+    "what's the rundown",
+    "what's the low-down",
+    "what's the dealy-o",
+    "what's the word on the street",
+    "what's the latest",
+    "what's the latest scoop",
+    "what's the good word",
+    "what's the straight dope",
+    "what's the inside scoop",
+    "what's the skinny",
+    "what's the news",
+    "what's the latest word",
+    "what's the dish",
+    "what's the buzz",
+    "what's the chatter",
+    "what's the talk",
+    "what's the talk of the town",
+    "what's the word around",
+    "what's the word on the street",
+    "what's the word from the grapevine",
+    "what's the word from the underground",
+    "what's the word from the inside",
+    "what's the word from the top",
+    "what's the word from the front",
+    "whats good",
+    "hows it",
+    "hows everything",
+    "hows life",
+    "whats new",
+    "how are you",
+    "whats cracking",
+    "whats shaking",
+    "whats poppin",
+    "whats cookin",
+    "whats happening",
+    "whats good",
+    "whats the word",
+    "whats the haps",
+    "whats the deal",
+    "whats the skinny",
+    "whats the scoop",
+    "whats the buzz",
+    "whats the 411",
+    "whats the word",
+    "whats the crack",
+    "whats the craic",
+    "whats the story",
+    "whats the dealio",
+    "whats the lowdown",
+    "whats the sitch",
+    "whats the dilly",
+    "whats the sitrep",
+    "whats the word up",
+    "whats the situation",
+    "whats the state of things",
+    "whats the deal",
+    "whats the long and short of it",
+    "whats the rundown",
+    "whats the low-down",
+    "whats the dealy-o",
+    "whats the word on the street",
+    "whats the latest",
+    "whats the latest scoop",
+    "whats the good word",
+    "whats the straight dope",
+    "whats the inside scoop",
+    "whats the skinny",
+    "whats the news",
+    "whats the latest word",
+    "whats the dish",
+    "whats the buzz",
+    "whats the chatter",
+    "whats the talk",
+    "whats the talk of the town",
+    "whats the word around",
+    "whats the word on the street",
+    "whats the word from the grapevine",
+    "whats the word from the underground",
+    "whats the word from the inside",
+    "whats the word from the top",
+    "whats the word from the front",
+    "hi",
+    "hello",
+    "hey",
+    "howdy",
+    "greetings",
+    "sup",
+    "what's up",
+    "wassup",
+    "yo",
+    "how are you",
+    "how's it going",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "hi there",
+    "howdy partner",
+    "what's new",
+    "what's cracking",
+    "how's everything",
+    "how's life",
+"how's things",
+"what's happening",
+"what's good",
+"what's up doc",
+"what's the word",
+"what's the haps",
+"what's the good word",
+"what's the 411",
+"how have you been",
+"long time no see",
+"nice to see you",
+"glad to see you",
+"good to see you",
+"great to see you",
+"it's been awhile",
+"been a while",
+"it's been a minute",
+"it's been too long",
+"how have you been",
+"what's been going on",
+"what's been up",
+"what's been happening",
+"what have you been up to",
+"what have you been doing",
+"what's new with you",
+"what's been new",
+"how have things been",
+"how's business",
+"how's work",
+"how's everything going",
+"how's the family",
+"how's the kids",
+"how's everything at home",
+"how's your day",
+"how's your week",
+"how's your month",
+"how's your year",
+"how's your life",
+"what's been on your mind",
+"what's been on your plate",
+"what's been on your agenda",
+"what's been on your to-do list",
+"what's been on your radar",
+"what's been on your mind lately",
+"how have you been feeling",
+"how's your mood",
+"how's your energy",
+"how's your vibe",
+"how's your spirit",
+"how's your morale",
+"how's your outlook",
+"how's your attitude",
+"how's your mental state",
+"how's your emotional state",
+"how's your disposition",
+"how are you holding up",
+"how are you coping",
+"how are you dealing",
+"how are you managing",
+"how are you handling",
+"how are you surviving",
+"how are you getting by",
+"how are you making out",
+"how are you faring",
+"how are you progressing",
+"how are you coming along",
+"how are you doing",
+"how are you",
+"how are things",
+"how are things going",
+"what's the latest",
+"what's the scoop",
+"what's the situation",
+"what's the status",
+"what's the deal",
+"what's the word on the street",
+"what's the buzz",
+"what's the lowdown",
+"what's the skinny",
+"what's the story",
+"what's the update",
+"what's the news",
+]
+
+let helloReplies = [
+    "Hey! I'm Zel, a work-in-progress AI. Is there anything I can help you with?",
+    "Greetings! I am Zel, a work-in-progress AI. Can I assist you with anything?",
+    "Hello! My name is Zel and I am an AI still under development. How can I be of your service?",
+    "Hi there! I am Zel, an AI that is still being improved. Is there anything I can do for you?",
+    "Hey, it's Zel here. I am an AI that is still being fine-tuned. Can I help you with anything?"
+]
+
+let capabilitiesTriggers = [
+"What can you do?",
+"What are your capabilities?",
+"What are you able to do?",
+"What services do you offer?",
+"What functions do you have?",
+"What features do you possess?",
+"What can I ask you to do?",
+"What tasks can you perform?",
+"What tools do you have?",
+"What abilities do you have?",
+"What resources do you have?",
+"What are your skills?",
+"What can you help me with?",
+"What can you assist me with?",
+"What can you provide for me?",
+"What can you give me?",
+"What can you serve me?",
+"What can you perform for me?",
+"What can you do for me?",
+"What can you offer me?",
+"What can you help me accomplish?",
+"What can you offer?",
+"What can you help me achieve?",
+"What can you help me with?",
+"What can you do to help me?",
+"What can you help me accomplish?",
+"What can you help me achieve?",
+"What can you assist me with?",
+"What can you help me with?",
+"What can you offer me?",
+"What can you provide me?",
+"What can you give me?",
+"What can you serve me?",
+"What can you perform for me?",
+"What can you do for me?",
+"What can you offer me?",
+"What can you help me accomplish?",
+"What can you offer?",
+"What can you help me achieve?",
+"What can you do for me?",
+"What can you assist me with?",
+"What can you provide for me?",
+"What can you do to assist me?",
+"What can you do to help me?"
+]
+
+let capabilitiesReplies = [
+"I am a versatile AI that can assist with a variety of tasks. Some examples include: answering questions, performing calculations, and providing information. Is there something specific you need help with?",
+"I am capable of a wide range of functions, such as: providing assistance with research, answering questions, and completing simple tasks. What can I assist you with?",
+"I am programmed to perform various functions, including: answering questions, providing information, and completing simple tasks. What can I help you with?",
+"I can assist with many different tasks such as: answering questions, performing calculations, providing information and more. How can I help you today?",
+"I am a powerful AI that can help you with various tasks. Some of the things I can do include: answering questions, performing calculations, and providing information. What can I help you with today?"
+]
+		
+            let userInput = document.getElementById("myInput").value;
+			document.getElementById("history0").innerHTML += "You > " + userInput + "\n"
+            userInput = userInput.toLowerCase();
+            memory.push(userInput);
+			
+
+            if (helloTriggers.some(trigger => userInput.includes(trigger))) {
+                let response = helloReplies[Math.floor(Math.random() * helloReplies.length)];
+                document.getElementById("history0").innerHTML += "AI > " + response + "\n"
+            } else if (whoAreYouTriggers.some(trigger => userInput.includes(trigger))) {
+                let response = whoAreYouReplies[Math.floor(Math.random() * whoAreYouReplies.length)];
+                document.getElementById("history0").innerHTML += "AI > " + response + "\n"
+            } else if (capabilitiesTriggers.some(trigger => userInput.includes(trigger))) {
+                let response = capabilitiesReplies[Math.floor(Math.random() * capabilitiesReplies.length)];
+                document.getElementById("history0").innerHTML += "AI > " + response + "\n"
+            } else {
+                document.getElementById("history0").innerHTML += "AI > " + dontUnderstandReplies[Math.floor(Math.random() * dontUnderstandReplies.length)] + "\n"
+            }
+        }
+		
+    </script>
+	<pre id="history0"></pre>
+	<div id="input-container">
+  <input type="text" id="myInput">
+  <button id="myButton" onclick="mainLoop()">Submit</button>
+</div>
+
+</body>
+</html>
