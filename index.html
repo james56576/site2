@@ -11,7 +11,7 @@
     </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
     <script>
-      var socket = io.connect('http://90.207.187.180:1238);
+      var socket = io.connect('http://90.207.187.180:1238');
       socket.on('message', function(message) {
         var node = document.createElement("LI");
         var textnode = document.createTextNode(message);
